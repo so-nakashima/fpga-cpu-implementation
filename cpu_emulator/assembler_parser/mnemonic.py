@@ -1,20 +1,18 @@
-from enum import Enum
-
-
-class Mnemonic(Enum):
-    MOV = "mov"
-    ADD = "add"
-    SUB = "sub"
-    AND = "and"
-    OR = "or"
-    SL = "sl"
-    SR = "sr"
-    SRA = "sra"
-    LDH = "ldh"
-    LDL = "ldl"
-    CMP = "cmp"
-    JE = "je"
-    JMP = "jmp"
-    LD = "ld"
-    ST = "st"
-    HLT = "hlt"
+MnemoticToMachineCode = {
+    "mov": "0000",
+    "add": "0001",
+    "sub": "0010",
+    "and": "0011",
+    "or": "0100",
+    "sl": "0101",
+    "sr": "0110",
+    "sra": "0111",
+    "ldh": "1000",
+    "ldl": "1001",
+    "cmp": "1010",
+    "je": "1011",
+    "jmp": "1100",
+    "ld": "1101",
+    "st": "1110",
+    "hlt": "1111",
+}
