@@ -10,6 +10,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "jupyter>=1.1.1",
     "pre-commit>=4.2.0",
     "ruff>=0.12.7",
 ]
@@ -45,3 +46,4 @@ warn_return_any          = true
 warn_unreachable         = true
 warn_unused_configs      = true
 warn_unused_ignores      = false
+disallow_subclassing_any = false
