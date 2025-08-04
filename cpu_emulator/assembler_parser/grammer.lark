@@ -1,0 +1,26 @@
+?start: func_call+
+
+func_call: FUNC_NAME "(" [arg_list] ")"
+
+FUNC_NAME: "mov"
+           | "add"
+           | "sub"
+           | "and"
+           | "or"
+           | "sl"
+           | "sr"
+           | "sra"
+           | "ldh"
+           | "ldl"
+           | "cmp"
+           | "je"
+           | "jmp"
+           | "ld"
+           | "st"
+           | "hlt"
+
+arg_list : INT ("," INT)*
+
+%import common.INT
+%import common.WS
+%ignore WS
