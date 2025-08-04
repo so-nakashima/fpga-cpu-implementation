@@ -1,4 +1,4 @@
-?start: func_call+
+?start: func_call*
 
 func_call: FUNC_NAME "(" [arg_list] ")"
 
