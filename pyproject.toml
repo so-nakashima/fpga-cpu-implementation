@@ -1,0 +1,47 @@
+[project]
+name = "fpga-cpu-implementation"
+version = "0.1.0"
+description = "FPGA CPU Implementation Project"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mypy>=1.17.1",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.2.0",
+    "ruff>=0.12.7",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-select = ["E", "F", "W", "B", "I"] # E: errors, F: pyflakes, W: warnings, B: flake8-bugbear, I: isort
+
+[tool.mypy]
+allow_redefinition      = false
+allow_untyped_globals    = false
+check_untyped_defs       = true
+color_output             = true
+disallow_incomplete_defs = true
+disallow_untyped_calls   = false
+disallow_untyped_decorators = false
+disallow_untyped_defs    = true
+error_summary            = true
+ignore_missing_imports   = true
+implicit_reexport        = true
+namespace_packages       = true
+no_implicit_optional     = true
+pretty                   = true
+show_column_numbers      = true
+show_error_codes         = true
+show_error_context       = true
+show_traceback           = true
+strict                   = true
+warn_no_return           = true
+warn_redundant_casts     = true
+warn_return_any          = true
+warn_unreachable         = true
+warn_unused_configs      = true
+warn_unused_ignores      = false
