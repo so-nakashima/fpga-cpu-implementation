@@ -63,14 +63,14 @@ def test_sra() -> None:
     assert decoded == ["0111" + "001" + "00000000"]
 
 
-def test_ldh() -> None:
-    code = "ldh(2,128)"
+def test_ldl() -> None:
+    code = "ldl(2,128)"
     decoded = parse(code)
     assert decoded == ["1000" + "010" + "10000000"]
 
 
-def test_ldl() -> None:
-    code = "ldl(5,64)"
+def test_ldh() -> None:
+    code = "ldh(5,64)"
     decoded = parse(code)
     assert decoded == ["1001" + "101" + "01000000"]
 
