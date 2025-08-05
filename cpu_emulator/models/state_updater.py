@@ -1,10 +1,15 @@
 from assembler_parser.mnemonic import MnemoticToMachineCode
 from bit_operation.slice import slice_bits
+from config import REGISTER_CONTENT_BITS
 
 from .machine_state import MachineState
 
 # 本質的には不要だが，可読性のため入れておく
 MachineCodeToMnemonic = {int(value, 2): key for key, value in MnemoticToMachineCode.items()}
+
+
+def trim_overflow(val: int) -> int:
+    return int(val % 2**REGISTER_CONTENT_BITS)
 
 
 class StateUpdater:
@@ -74,7 +79,8 @@ class StateUpdater:
         operand_2 = slice_bits(machine_code, 5, 8)
 
         updated_registers = state.registers.copy()
-        updated_registers[operand_1] = state.registers[operand_1] + state.registers[operand_2]
+        update_val = state.registers[operand_1] + state.registers[operand_2]
+        updated_registers[operand_1] = trim_overflow(update_val)
 
         return MachineState(
             program_counter=state.program_counter + 1,
@@ -90,7 +96,8 @@ class StateUpdater:
         operand_2 = slice_bits(machine_code, 5, 8)
 
         updated_registers = state.registers.copy()
-        updated_registers[operand_1] = state.registers[operand_1] - state.registers[operand_2]
+        update_val = state.registers[operand_1] - state.registers[operand_2]
+        updated_registers[operand_1] = trim_overflow(update_val)
 
         return MachineState(
             program_counter=state.program_counter + 1,
@@ -170,6 +177,7 @@ class StateUpdater:
         updated_registers[operand1] = state.registers[operand1] >> 1
         # 最上位ビットは保持
         updated_registers[operand1] |= state.registers[operand1] & 0b1000000000000000
+
         return MachineState(
             program_counter=state.program_counter + 1,
             ram=state.ram,
