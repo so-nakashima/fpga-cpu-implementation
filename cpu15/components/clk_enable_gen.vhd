@@ -37,44 +37,58 @@ entity clk_enable_gen is
         clk : in std_logic;
         clk_enable_fetch : out std_logic;
         clk_enable_decode : out std_logic;
+        clk_enable_load : out std_logic;
         clk_enable_execute : out std_logic;
         clk_enable_writeback : out std_logic
     );
 end clk_enable_gen;
 
 architecture rtl of clk_enable_gen is
-signal count: std_logic_vector(1 downto 0) := "00";
+signal count: std_logic_vector(2 downto 0) := "000";
 
 begin
     process(clk)
     begin
         if rising_edge(clk) then
             case count is
-                when "00" =>
+                when "000" =>
                     clk_enable_fetch <= '1';
                     clk_enable_decode <= '0';
+                    clk_enable_load <= '0';
                     clk_enable_execute <= '0';
                     clk_enable_writeback <= '0';
-                when "01" =>
+                when "001" =>
                     clk_enable_fetch <= '0';
                     clk_enable_decode <= '1';
+                    clk_enable_load <= '0';
                     clk_enable_execute <= '0';
                     clk_enable_writeback <= '0';
-                when "10" =>
+                when "010" =>
                     clk_enable_fetch <= '0';
                     clk_enable_decode <= '0';
+                    clk_enable_load <= '1';
+                    clk_enable_execute <= '0';
+                    clk_enable_writeback <= '0';
+                when "011" =>
+                    clk_enable_fetch <= '0';
+                    clk_enable_decode <= '0';
+                    clk_enable_load <= '0';
                     clk_enable_execute <= '1';
                     clk_enable_writeback <= '0';
-                when "11" =>
+                when "100" =>
                     clk_enable_fetch <= '0';
                     clk_enable_decode <= '0';
+                    clk_enable_load <= '0';
                     clk_enable_execute <= '0';
                     clk_enable_writeback <= '1';
                 when others =>
                     null;
             end case;
-
-            count <= count + 1;
+            if count = "100" then
+                count <= "000";
+            else
+                count <= count + 1;
+            end if;
         end if;
     end process;
 

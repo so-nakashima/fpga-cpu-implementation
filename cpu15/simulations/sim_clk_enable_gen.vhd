@@ -41,6 +41,7 @@ component clk_enable_gen is
         clk : in std_logic;
         clk_enable_fetch : out std_logic;
         clk_enable_decode : out std_logic;
+        clk_enable_load : out std_logic;
         clk_enable_execute : out std_logic;
         clk_enable_writeback : out std_logic
     );
@@ -49,6 +50,7 @@ end component;
 signal clk: std_logic;
 signal clk_enable_fetch: std_logic;
 signal clk_enable_decode: std_logic;
+signal clk_enable_load: std_logic;
 signal clk_enable_execute: std_logic;
 signal clk_enable_writeback: std_logic;
 
@@ -59,6 +61,7 @@ begin
         clk => clk,
         clk_enable_fetch => clk_enable_fetch,
         clk_enable_decode => clk_enable_decode,
+        clk_enable_load => clk_enable_load,
         clk_enable_execute => clk_enable_execute,
         clk_enable_writeback => clk_enable_writeback
     );
@@ -71,6 +74,7 @@ begin
         wait for 10 ns;
         assert clk_enable_fetch = '1' report "clk_enable_fetch is not 1" severity error;
         assert clk_enable_decode = '0' report "clk_enable_decode is not 0" severity error;
+        assert clk_enable_load = '0' report "clk_enable_load is not 0" severity error;
         assert clk_enable_execute = '0' report "clk_enable_execute is not 0" severity error;
         assert clk_enable_writeback = '0' report "clk_enable_writeback is not 0" severity error;
 
@@ -80,6 +84,7 @@ begin
         wait for 10 ns;
         assert clk_enable_fetch = '0' report "clk_enable_fetch is not 0" severity error;
         assert clk_enable_decode = '1' report "clk_enable_decode is not 1" severity error;
+        assert clk_enable_load = '0' report "clk_enable_load is not 0" severity error;
         assert clk_enable_execute = '0' report "clk_enable_execute is not 0" severity error;
         assert clk_enable_writeback = '0' report "clk_enable_writeback is not 0" severity error;
 
@@ -89,7 +94,8 @@ begin
         wait for 10 ns;
         assert clk_enable_fetch = '0' report "clk_enable_fetch is not 0" severity error;
         assert clk_enable_decode = '0' report "clk_enable_decode is not 0" severity error;
-        assert clk_enable_execute = '1' report "clk_enable_execute is not 1" severity error;
+        assert clk_enable_load = '1' report "clk_enable_load is not 1" severity error;
+        assert clk_enable_execute = '0' report "clk_enable_execute is not 1" severity error;
         assert clk_enable_writeback = '0' report "clk_enable_writeback is not 0" severity error;
 
         clk <= '0';
@@ -98,6 +104,17 @@ begin
         wait for 10 ns;
         assert clk_enable_fetch = '0' report "clk_enable_fetch is not 0" severity error;
         assert clk_enable_decode = '0' report "clk_enable_decode is not 0" severity error;
+        assert clk_enable_load = '0' report "clk_enable_load is not 0" severity error;
+        assert clk_enable_execute = '1' report "clk_enable_execute is not 0" severity error;
+        assert clk_enable_writeback = '0' report "clk_enable_writeback is not 1" severity error;
+
+        clk <= '0';
+        wait for 10 ns;
+        clk <= '1';
+        wait for 10 ns;
+        assert clk_enable_fetch = '0' report "clk_enable_fetch is not 0" severity error;
+        assert clk_enable_decode = '0' report "clk_enable_decode is not 0" severity error;
+        assert clk_enable_load = '0' report "clk_enable_load is not 0" severity error;
         assert clk_enable_execute = '0' report "clk_enable_execute is not 0" severity error;
         assert clk_enable_writeback = '1' report "clk_enable_writeback is not 1" severity error;
 
@@ -107,8 +124,11 @@ begin
         wait for 10 ns;
         assert clk_enable_fetch = '1' report "clk_enable_fetch is not 1" severity error;
         assert clk_enable_decode = '0' report "clk_enable_decode is not 0" severity error;
+        assert clk_enable_load = '0' report "clk_enable_load is not 0" severity error;
         assert clk_enable_execute = '0' report "clk_enable_execute is not 0" severity error;
         assert clk_enable_writeback = '0' report "clk_enable_writeback is not 0" severity error;
+
+
 
         wait;
     end process;
