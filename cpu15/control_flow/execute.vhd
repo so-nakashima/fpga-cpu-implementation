@@ -37,6 +37,7 @@ entity execute is
     port(
         clk : in std_logic;
         clk_enable : in std_logic;
+        reset : in std_logic;
         instruction : in std_logic_vector(INSTRUCTION_WIDTH - 1 downto 0);
         program_counter : in std_logic_vector(PC_WIDTH - 1 downto 0);
         flag : in std_logic;
@@ -101,7 +102,16 @@ begin
     variable alu_op : alu_op_t;
 
     begin
-        if rising_edge(clk) and clk_enable = '1' then
+        -- reset case
+        if rising_edge(clk) and reset = '1' then
+            next_program_counter <= (others => '0');
+            reg_write_enable <= '0';
+            ram_write_enable <= '0';
+            next_flag <= '0';
+            reg_write_data <= (others => '0');
+            ram_write_data <= (others => '0');
+        -- normal case
+        elsif rising_edge(clk) and clk_enable = '1' and reset = '0' then
             alu_op := instruction_to_alu_op(to_integer(unsigned(instruction)));
 
             -- default assignment

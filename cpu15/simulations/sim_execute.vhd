@@ -32,6 +32,7 @@ architecture Behavioral of sim_execute is
         port(
             clk : in std_logic;
             clk_enable : in std_logic;
+            reset : in std_logic;
             instruction : in std_logic_vector(INSTRUCTION_WIDTH - 1 downto 0);
             program_counter : in std_logic_vector(PC_WIDTH - 1 downto 0);
             flag : in std_logic;
@@ -51,6 +52,7 @@ architecture Behavioral of sim_execute is
     -- テスト信号
     signal clk : std_logic := '0';
     signal clk_enable : std_logic := '1';
+    signal reset : std_logic := '0';
     signal instruction : std_logic_vector(INSTRUCTION_WIDTH - 1 downto 0) := (others => '0');
     signal program_counter : std_logic_vector(PC_WIDTH - 1 downto 0) := (others => '0');
     signal flag : std_logic := '0';
@@ -73,7 +75,8 @@ begin
     uut: execute port map(
         clk => clk,
         clk_enable => clk_enable,
-        instruction => instruction,
+        reset => reset,
+            instruction => instruction,
         program_counter => program_counter,
         flag => flag,
         reg_1_data => reg_1_data,
@@ -283,8 +286,21 @@ begin
         assert reg_write_enable = '0' report "ALU_HLT: reg_write_enable is wrong" severity error;
         assert ram_write_enable = '0' report "ALU_HLT: ram_write_enable is wrong" severity error;
 
+        -- テスト19: reset
+        reset <= '1';
+        wait until rising_edge(clk);
+        wait for 1 ps;
+        assert next_program_counter = "00000000" report "reset: next_program_counter is wrong" severity error;
+        assert reg_write_enable = '0' report "reset: reg_write_enable is wrong" severity error;
+        assert ram_write_enable = '0' report "reset: ram_write_enable is wrong" severity error;
+        assert next_flag = '0' report "reset: next_flag is wrong" severity error;
+        assert reg_write_data = "0000000000000000" report "reset: reg_write_data is wrong" severity error;
+        assert ram_write_data = "0000000000000000" report "reset: ram_write_data is wrong" severity error;
+
+
         -- テスト完了
         report "All tests finished";
+
         wait for CLK_PERIOD * 5;
 
         -- シミュレーション終了
