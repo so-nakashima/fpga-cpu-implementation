@@ -69,7 +69,7 @@ begin
         wait for 10 ns;
         clk <= '1';
         wait for 10 ns;
-        assert machine_code = "100100000000000" report "machine_code is not 100100000000000" severity error;
+        assert machine_code = "100100000000000" report "test1: machine_code is not 100100000000000" severity error;
 
 
         program_counter <= "00000101";
@@ -77,14 +77,14 @@ begin
         wait for 10 ns;
         clk <= '1';
         wait for 10 ns;
-        assert machine_code = "100010000000000" report "machine_code is not 100010000000000" severity error;
+        assert machine_code = "100001000000000" report "test2: machine_code is not 100001000000000" severity error;
 
         program_counter <= "00001111";
         clk <= '0';
         wait for 10 ns;
         clk <= '1';
         wait for 10 ns;
-        assert machine_code = "000000000000000" report "machine_code is not 000000000000000" severity error;
+        assert machine_code = "000000000000000" report "test3: machine_code is not 000000000000000" severity error;
 
         program_counter <= "00000000";
         clk <= '0';
@@ -92,7 +92,7 @@ begin
         wait for 10 ns;
         clk <= '1';
         wait for 10 ns;
-        assert machine_code = "000000000000000" report "fetched when clk_enable is 0" severity error;
+        assert machine_code = "000000000000000" report "test4: fetched when clk_enable is 0" severity error;
 
         wait;
 
