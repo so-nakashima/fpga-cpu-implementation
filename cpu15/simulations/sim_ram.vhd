@@ -42,8 +42,10 @@ signal clk : std_logic;
 signal write_enable : std_logic;
 signal write_address : std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
 signal write_data : std_logic_vector(OPERAND_WIDTH - 1 downto 0);
-signal read_address : std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
-signal read_data : std_logic_vector(OPERAND_WIDTH - 1 downto 0);
+signal read_address_1 : std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
+signal read_address_2 : std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
+signal read_data_1 : std_logic_vector(OPERAND_WIDTH - 1 downto 0);
+signal read_data_2 : std_logic_vector(OPERAND_WIDTH - 1 downto 0);
 
 component ram is
     generic(
@@ -54,8 +56,10 @@ component ram is
         write_enable : in std_logic;
         write_data : in std_logic_vector(WIDTH - 1 downto 0);
         write_address : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
-        read_address : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
-        read_data : out std_logic_vector(WIDTH - 1 downto 0)
+        read_address_1 : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
+        read_address_2 : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
+        read_data_1 : out std_logic_vector(WIDTH - 1 downto 0);
+        read_data_2 : out std_logic_vector(WIDTH - 1 downto 0)
     );
 end component;
 
@@ -68,8 +72,10 @@ begin
             write_enable => write_enable,
             write_data => write_data,
             write_address => write_address,
-            read_address => read_address,
-            read_data => read_data
+            read_address_1 => read_address_1,
+            read_address_2 => read_address_2,
+            read_data_1 => read_data_1,
+            read_data_2 => read_data_2
         );
 
     process begin
@@ -77,14 +83,16 @@ begin
         -- also check no write during write_enable = 0
         clk <= '0';
         write_enable <= '0';
-        read_address <= "00000000";
+        read_address_1 <= "00000000";
+        read_address_2 <= "00000001";
         write_address <= "00000000";
         write_data <= "0000000000000001";
         write_enable <= '0';
         wait for 10 ns;
         clk <= '1';
         wait for 10 ns;
-        assert read_data = "0000000000000000" report "read_data is not 0" severity error;
+        assert read_data_1 = "0000000000000000" report "read_data_1 is not 0" severity error;
+        assert read_data_2 = "0000000000000000" report "read_data_2 is not 0" severity error;
 
         -- check write
         clk <= '0';
@@ -96,7 +104,8 @@ begin
         wait for 10 ns;
         clk <= '1';
         wait for 10 ns;
-        assert read_data = "0000000000000001" report "read_data is not 1" severity error;
+        assert read_data_1 = "0000000000000001" report "read_data_1 is not 1" severity error;
+        assert read_data_2 = "0000000000000000" report "read_data_2 is not 0" severity error;
         wait;
     end process;
 

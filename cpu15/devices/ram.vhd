@@ -46,8 +46,10 @@ entity ram is
         write_address : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
         write_data : in std_logic_vector(WIDTH - 1 downto 0);
         -- 読み出しポート
-        read_address : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
-        read_data : out std_logic_vector(WIDTH - 1 downto 0)
+        read_address_1 : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
+        read_address_2 : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
+        read_data_1 : out std_logic_vector(WIDTH - 1 downto 0);
+        read_data_2 : out std_logic_vector(WIDTH - 1 downto 0)
     );
 end ram;
 
@@ -63,7 +65,8 @@ begin
             if write_enable = '1' then
                 ram_array(conv_integer(write_address)) <= write_data;
             end if;
-            read_data <= ram_array(conv_integer(read_address));
+            read_data_1 <= ram_array(conv_integer(read_address_1));
+            read_data_2 <= ram_array(conv_integer(read_address_2));
         end if;
     end process;
 end rtl;
