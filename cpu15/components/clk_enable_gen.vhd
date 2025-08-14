@@ -22,6 +22,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
+library work;
+use work.constants_pkg.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -44,12 +46,23 @@ entity clk_enable_gen is
 end clk_enable_gen;
 
 architecture rtl of clk_enable_gen is
+signal downclock_counter : std_logic_vector(DOWNCLOCK_WIDTH - 1 downto 0) := (others => '0');
 signal count: std_logic_vector(2 downto 0) := "000";
 
 begin
     process(clk)
     begin
         if rising_edge(clk) then
+            if downclock_counter = "100000000000000000000" then
+                downclock_counter <= (others => '0');
+                if count = "100" then
+                    count <= "000";
+                else
+                    count <= count + 1;
+                end if;
+            else
+                downclock_counter <= downclock_counter + 1;
+            end if;
             case count is
                 when "000" =>
                     clk_enable_fetch <= '1';
@@ -84,11 +97,6 @@ begin
                 when others =>
                     null;
             end case;
-            if count = "100" then
-                count <= "000";
-            else
-                count <= count + 1;
-            end if;
         end if;
     end process;
 

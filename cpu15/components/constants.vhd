@@ -27,6 +27,8 @@ package constants_pkg is
     constant INSTRUCTION_WIDTH : integer := 4;
     constant OPERAND_WIDTH : integer := 16;
     constant REGISTER_ADDRESS_WIDTH : integer := 3;
+    constant RAM_ADDRESS_WIDTH : integer := 8;
+    constant DOWNCLOCK_WIDTH : integer := 21;
 end package;
 
 package body constants_pkg is
