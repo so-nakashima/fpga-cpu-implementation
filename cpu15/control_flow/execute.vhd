@@ -103,79 +103,81 @@ begin
 
     begin
         -- reset case
-        if rising_edge(clk) and reset = '1' then
-            next_program_counter <= (others => '0');
-            reg_write_enable <= '0';
-            ram_write_enable <= '0';
-            next_flag <= '0';
-            reg_write_data <= (others => '0');
-            ram_write_data <= (others => '0');
-        -- normal case
-        elsif rising_edge(clk) and clk_enable = '1' and reset = '0' then
-            alu_op := instruction_to_alu_op(to_integer(unsigned(instruction)));
+        if rising_edge(clk) then
+            if reset = '1' then
+                next_program_counter <= (others => '0');
+                reg_write_enable <= '0';
+                ram_write_enable <= '0';
+                next_flag <= '0';
+                reg_write_data <= (others => '0');
+                ram_write_data <= (others => '0');
+            -- normal case
+            elsif clk_enable = '1' then
+                alu_op := instruction_to_alu_op(to_integer(unsigned(instruction)));
 
-            -- default assignment
-            next_program_counter <= std_logic_vector(unsigned(program_counter) + 1);
-            reg_write_enable <= '0';
-            ram_write_enable <= '0';
-            next_flag <= flag;
+                -- default assignment
+                next_program_counter <= std_logic_vector(unsigned(program_counter) + 1);
+                reg_write_enable <= '0';
+                ram_write_enable <= '0';
+                next_flag <= flag;
 
-            case alu_op is
-                when ALU_MOV =>
-                    reg_write_data <= reg_2_data;
-                    reg_write_enable <= '1';
-                when ALU_ADD =>
-                    reg_write_data <= std_logic_vector(unsigned(reg_1_data) + unsigned(reg_2_data));
-                    reg_write_enable <= '1';
-                when ALU_SUB =>
-                    reg_write_data <= std_logic_vector(unsigned(reg_1_data) - unsigned(reg_2_data));
-                    reg_write_enable <= '1';
-                when ALU_AND =>
-                    reg_write_data <= reg_1_data and reg_2_data;
-                    reg_write_enable <= '1';
-                when ALU_OR =>
-                    reg_write_data <= reg_1_data or reg_2_data;
-                    reg_write_enable <= '1';
-                when ALU_SL =>
-                    reg_write_data <= std_logic_vector(unsigned(reg_1_data) sll 1);
-                    reg_write_enable <= '1';
-                when ALU_SR =>
-                    reg_write_data <= std_logic_vector(unsigned(reg_1_data) srl 1);
-                    reg_write_enable <= '1';
-                when ALU_SRA =>
-                    reg_write_data <= std_logic_vector(
-                        shift_right(signed(reg_1_data), 1)
-                    );
-                    reg_write_enable <= '1';
-                when ALU_LDL =>
-                    reg_write_data <= reg_1_data(OPERAND_WIDTH - 1 downto 8) & op_data(7 downto 0);
-                    reg_write_enable <= '1';
-                when ALU_LDH =>
-                    reg_write_data <= op_data & reg_1_data(7 downto 0);
-                    reg_write_enable <= '1';
-                when ALU_CMP =>
-                    if reg_1_data = reg_2_data then
-                        next_flag <= '1';
-                    else
-                        next_flag <= '0';
-                    end if;
-                when ALU_JE =>
-                    if flag = '1' then
+                case alu_op is
+                    when ALU_MOV =>
+                        reg_write_data <= reg_2_data;
+                        reg_write_enable <= '1';
+                    when ALU_ADD =>
+                        reg_write_data <= std_logic_vector(unsigned(reg_1_data) + unsigned(reg_2_data));
+                        reg_write_enable <= '1';
+                    when ALU_SUB =>
+                        reg_write_data <= std_logic_vector(unsigned(reg_1_data) - unsigned(reg_2_data));
+                        reg_write_enable <= '1';
+                    when ALU_AND =>
+                        reg_write_data <= reg_1_data and reg_2_data;
+                        reg_write_enable <= '1';
+                    when ALU_OR =>
+                        reg_write_data <= reg_1_data or reg_2_data;
+                        reg_write_enable <= '1';
+                    when ALU_SL =>
+                        reg_write_data <= std_logic_vector(unsigned(reg_1_data) sll 1);
+                        reg_write_enable <= '1';
+                    when ALU_SR =>
+                        reg_write_data <= std_logic_vector(unsigned(reg_1_data) srl 1);
+                        reg_write_enable <= '1';
+                    when ALU_SRA =>
+                        reg_write_data <= std_logic_vector(
+                            shift_right(signed(reg_1_data), 1)
+                        );
+                        reg_write_enable <= '1';
+                    when ALU_LDL =>
+                        reg_write_data <= reg_1_data(OPERAND_WIDTH - 1 downto 8) & op_data(7 downto 0);
+                        reg_write_enable <= '1';
+                    when ALU_LDH =>
+                        reg_write_data <= op_data & reg_1_data(7 downto 0);
+                        reg_write_enable <= '1';
+                    when ALU_CMP =>
+                        if reg_1_data = reg_2_data then
+                            next_flag <= '1';
+                        else
+                            next_flag <= '0';
+                        end if;
+                    when ALU_JE =>
+                        if flag = '1' then
+                            next_program_counter <= op_data(PC_WIDTH - 1 downto 0);
+                        end if;
+                    when ALU_JMP =>
                         next_program_counter <= op_data(PC_WIDTH - 1 downto 0);
-                    end if;
-                when ALU_JMP =>
-                    next_program_counter <= op_data(PC_WIDTH - 1 downto 0);
-                when ALU_LD =>
-                    reg_write_data <= ram_data;
-                    reg_write_enable <= '1';
-                when ALU_ST =>
-                    ram_write_data <= reg_1_data;
-                    ram_write_enable <= '1';
-                when ALU_HLT =>
-                    next_program_counter <= program_counter;
-                when others =>
-                    next_program_counter <= program_counter;
-            end case;
+                    when ALU_LD =>
+                        reg_write_data <= ram_data;
+                        reg_write_enable <= '1';
+                    when ALU_ST =>
+                        ram_write_data <= reg_1_data;
+                        ram_write_enable <= '1';
+                    when ALU_HLT =>
+                        next_program_counter <= program_counter;
+                    when others =>
+                        next_program_counter <= program_counter;
+                end case;
+            end if;
         end if;
     end process;
 
