@@ -53,14 +53,21 @@ entity ram is
         read_address_1 : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
         read_address_2 : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
         read_data_1 : out std_logic_vector(WIDTH - 1 downto 0);
-        read_data_2 : out std_logic_vector(WIDTH - 1 downto 0)
+        read_data_2 : out std_logic_vector(WIDTH - 1 downto 0);
+        -- MMIO (input)
+        mmio_input : in std_logic_vector(WIDTH - 1 downto 0)
     );
 end ram;
 
 architecture rtl of ram is
-    subtype word_t is std_logic_vector(WIDTH - 1 downto 0);
-    type ram_array_t is array(0 to 2 ** RAM_ADDRESS_WIDTH - 1) of word_t;
-    signal ram_array : ram_array_t := (others => (others => '0'));
+
+subtype word_t is std_logic_vector(WIDTH - 1 downto 0);
+type ram_array_t is array(0 to 2 ** RAM_ADDRESS_WIDTH - 1) of word_t;
+signal ram_array : ram_array_t := (others => (others => '0'));
+
+
+-- MMIO address
+constant MMIO_ADDRESS : std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0) := (others => '1');
 
 begin
     process(clk)
@@ -74,8 +81,18 @@ begin
                 ram_array(conv_integer(write_address)) <= write_data;
             end if;
 
-            read_data_1 <= ram_array(conv_integer(read_address_1));
-            read_data_2 <= ram_array(conv_integer(read_address_2));
+            -- read
+            if read_address_1 = MMIO_ADDRESS then
+                read_data_1 <= mmio_input;
+            else
+                read_data_1 <= ram_array(conv_integer(read_address_1));
+            end if;
+
+            if read_address_2 = MMIO_ADDRESS then
+                read_data_2 <= mmio_input;
+            else
+                read_data_2 <= ram_array(conv_integer(read_address_2));
+            end if;
         end if;
     end process;
 end rtl;

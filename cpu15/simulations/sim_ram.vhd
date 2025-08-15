@@ -48,6 +48,7 @@ signal read_address_1 : std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
 signal read_address_2 : std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
 signal read_data_1 : std_logic_vector(OPERAND_WIDTH - 1 downto 0);
 signal read_data_2 : std_logic_vector(OPERAND_WIDTH - 1 downto 0);
+signal mmio_input : std_logic_vector(OPERAND_WIDTH - 1 downto 0) := (others => '1');
 
 component ram is
     generic(
@@ -63,7 +64,8 @@ component ram is
         read_address_1 : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
         read_address_2 : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
         read_data_1 : out std_logic_vector(WIDTH - 1 downto 0);
-        read_data_2 : out std_logic_vector(WIDTH - 1 downto 0)
+        read_data_2 : out std_logic_vector(WIDTH - 1 downto 0);
+        mmio_input : in std_logic_vector(WIDTH - 1 downto 0)
     );
 end component;
 
@@ -81,7 +83,8 @@ begin
             read_address_1 => read_address_1,
             read_address_2 => read_address_2,
             read_data_1 => read_data_1,
-            read_data_2 => read_data_2
+            read_data_2 => read_data_2,
+            mmio_input => mmio_input
         );
 
     process begin
@@ -128,6 +131,17 @@ begin
         wait for 10 ns;
         assert read_data_1 = "0000000000000000" report "read_data_1 is not 0" severity error;
         assert read_data_2 = "0000000000000000" report "read_data_2 is not 0" severity error;
+
+        -- check MMIO input
+        reset <= '0';
+        read_address_1 <= "11111111";
+
+        clk <= '0';
+        wait for 10 ns;
+        clk <= '1';
+        wait for 10 ns;
+        assert read_data_1 = "1111111111111111" report "read_data_1 is not 1" severity error;
+
         wait;
     end process;
 
