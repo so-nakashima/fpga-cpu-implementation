@@ -51,11 +51,20 @@ architecture rtl of main is
 component clk_enable_gen is
     port(
         clk : in std_logic;
+        reset : in std_logic;
         clk_enable_fetch : out std_logic;
         clk_enable_decode : out std_logic;
         clk_enable_load : out std_logic;
         clk_enable_execute : out std_logic;
         clk_enable_writeback : out std_logic
+    );
+end component;
+
+component reset_sync is
+    port(
+        clk : in std_logic;
+        reset_raw : in std_logic;
+        reset_synced : out std_logic
     );
 end component;
 
@@ -110,8 +119,12 @@ component reg is
     );
     port(
         clk : in std_logic;
+        reset : in std_logic;
         -- 書き込みポート
-        write_enable : in std_logic;
+        -- 現在writeback phaseかのフラグ
+        clk_write_enable : in std_logic;
+        -- execute phaseで書き込みを行う場合のフラグ
+        exec_write_enable : in std_logic;
         write_address : in std_logic_vector(REGISTER_ADDRESS_WIDTH - 1 downto 0);
         write_data : in std_logic_vector(WIDTH - 1 downto 0);
         -- 読み出しポート(2つ)
@@ -129,8 +142,12 @@ component ram is
     );
     port(
         clk : in std_logic;
+        reset : in std_logic;
         -- 書き込みポート
-        write_enable : in std_logic;
+        -- 現在writeback phaseかのフラグ
+        clk_write_enable : in std_logic;
+        -- execute phaseで書き込みを行う場合のフラグ
+        exec_write_enable : in std_logic;
         write_address : in std_logic_vector(RAM_ADDRESS_WIDTH - 1 downto 0);
         write_data : in std_logic_vector(WIDTH - 1 downto 0);
         -- 読み出しポート(2つ)
@@ -160,6 +177,9 @@ signal clk_enable_decode : std_logic;
 signal clk_enable_load : std_logic;
 signal clk_enable_execute : std_logic;
 signal clk_enable_writeback : std_logic;
+
+-- reset signals
+signal reset_synced : std_logic;
 
 -- machine states
 signal program_counter : std_logic_vector(PC_WIDTH - 1 downto 0) := (others => '0');
@@ -199,11 +219,20 @@ begin
     clk_enable_gen_inst : clk_enable_gen
         port map(
             clk => clk,
+            reset => reset_synced,
             clk_enable_fetch => clk_enable_fetch,
             clk_enable_decode => clk_enable_decode,
             clk_enable_load => clk_enable_load,
             clk_enable_execute => clk_enable_execute,
             clk_enable_writeback => clk_enable_writeback
+        );
+
+    -- reset信号の同期化
+    reset_sync_inst : reset_sync
+        port map(
+            clk => clk,
+            reset_raw => reset,
+            reset_synced => reset_synced
         );
 
     -- fetch
@@ -236,7 +265,7 @@ begin
         port map(
             clk => clk,
             clk_enable => clk_enable_execute,
-            reset => reset,
+            reset => reset_synced,
             instruction => instruction,
             program_counter => program_counter,
             flag => flag,
@@ -265,7 +294,9 @@ begin
         generic map(REGISTER_ADDRESS_WIDTH => REGISTER_ADDRESS_WIDTH, WIDTH => OPERAND_WIDTH)
         port map(
             clk => clk,
-            write_enable => clk_enable_writeback and reg_write_enable,
+            reset => reset_synced,
+            clk_write_enable => clk_enable_writeback,
+            exec_write_enable => reg_write_enable,
             write_address => reg_1_address,
             write_data => reg_write_data,
             read_address_1 => reg_1_address,
@@ -279,7 +310,9 @@ begin
         generic map(RAM_ADDRESS_WIDTH => RAM_ADDRESS_WIDTH, WIDTH => OPERAND_WIDTH)
         port map(
             clk => clk,
-            write_enable => clk_enable_writeback and ram_write_enable,
+            reset => reset_synced,
+            clk_write_enable => clk_enable_writeback,
+            exec_write_enable => ram_write_enable,
             write_address => ram_address,
             write_data => ram_write_data,
             read_address_1 => ram_address,

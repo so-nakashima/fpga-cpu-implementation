@@ -37,6 +37,7 @@ use work.constants_pkg.all;
 entity clk_enable_gen is
     port(
         clk : in std_logic;
+        reset : in std_logic;
         clk_enable_fetch : out std_logic;
         clk_enable_decode : out std_logic;
         clk_enable_load : out std_logic;
@@ -46,6 +47,9 @@ entity clk_enable_gen is
 end clk_enable_gen;
 
 architecture rtl of clk_enable_gen is
+-- clkの立ち上がりごとにdownclock_counterを1増やす
+-- downclock_counterが2^DOWNCLOCK_WIDTH - 1になったらcountを1増やす
+-- count がfetch, decode, load, execute, writebackの分割を決めている．
 signal downclock_counter : std_logic_vector(DOWNCLOCK_WIDTH - 1 downto 0) := (others => '0');
 signal count: std_logic_vector(2 downto 0) := "000";
 
@@ -53,6 +57,11 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
+            if reset = '1' then
+                downclock_counter <= (others => '0');
+                count <= "000";
+            end if;
+
             if downclock_counter = "100000000000000000000" then
                 downclock_counter <= (others => '0');
                 if count = "100" then
@@ -63,6 +72,7 @@ begin
             else
                 downclock_counter <= downclock_counter + 1;
             end if;
+
             case count is
                 when "000" =>
                     clk_enable_fetch <= '1';

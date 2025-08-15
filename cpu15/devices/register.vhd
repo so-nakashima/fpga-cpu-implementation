@@ -41,8 +41,12 @@ entity reg is
     );
     port(
         clk : in std_logic;
+        reset : in std_logic;
         -- 書き込みポート
-        write_enable : in std_logic;
+        -- 現在writeback phaseかのフラグ
+        clk_write_enable : in std_logic;
+        -- execute phaseで書き込みを行う場合のフラグ
+        exec_write_enable : in std_logic;
         write_address : in std_logic_vector(REGISTER_ADDRESS_WIDTH - 1 downto 0);
         write_data : in std_logic_vector(WIDTH - 1 downto 0);
         -- 読み出しポート(2つ)
@@ -62,9 +66,14 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            if write_enable = '1' then
+            -- reset case
+            if reset = '1' then
+                reg_array <= (others => (others => '0'));
+            -- normal case
+            elsif clk_write_enable = '1' and exec_write_enable = '1' then
                 reg_array(conv_integer(write_address)) <= write_data;
             end if;
+
             read_data_1 <= reg_array(conv_integer(read_address_1));
             read_data_2 <= reg_array(conv_integer(read_address_2));
         end if;
